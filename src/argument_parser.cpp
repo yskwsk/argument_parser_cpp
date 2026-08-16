@@ -228,6 +228,9 @@ const ArgValue& ArgumentParser::GetArgValue(const std::string& name) const {
 
 
 void ArgumentParser::PrintHelp() const {
+    if (!program_name_.empty()) {
+        std::cout << "Program: " << program_name_ << std::endl;
+    }
     std::cout << "Arguments:\n";
 
     for (const auto& definition : positional_definitions_) {
