@@ -9,50 +9,107 @@
 
 #include <map>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 
 class ArgumentParser {
 public:
-    ArgumentParser();
+    ArgumentParser() : program_name_("") {}
 
-    ArgumentParser(const std::string& program_name);
+    ArgumentParser(const std::string& program_name)
+        : program_name_(program_name)
+    {}
 
     void AddOptionalArgument(
         const std::string& name,
         const ArgType type,
         const std::string& help = ""
-    );
+    ) {
+        const std::string option_name = "--" + name;
 
+        optional_definitions_.emplace(
+            option_name,
+            ArgumentDefinition(
+                name,
+                type,
+                std::nullopt,
+                help,
+                false
+            )
+        );
+    }
+
+    template <typename T>
     void AddOptionalArgument(
         const std::string& name,
         const ArgType type,
-        const ArgValue& default_value,
+        const T default_value,
         const std::string& help
-    );
+    ) {
+        const std::string option_name = "--" + name;
+
+        optional_definitions_.emplace(
+            option_name,
+            ArgumentDefinition(
+                name,
+                type,
+                ArgValue(std::move(default_value)),
+                help,
+                false
+            )
+        );
+    }
 
     void AddFlag(
         const std::string& name,
         const std::string& help = ""
-    );
+    ) {
+        const std::string option_name = "--" + name;
+
+        optional_definitions_.emplace(
+            option_name, 
+            ArgumentDefinition(
+                name,
+                ArgType::BOOL,
+                ArgValue(false),
+                help,
+                true
+            )
+        );
+    }
 
     void AddPositionalArgument(
         const std::string& name,
         const ArgType type,
         const std::string& help
-    );
+    ) {
+        positional_definitions_.push_back(
+            ArgumentDefinition(
+                name,
+                type,
+                std::nullopt,
+                help,
+                false
+            )
+        );
+    }
 
-    void Parse(const int argc, const char* argv[]);
-
-    bool Contains(const std::string& name) const;
-
-    const ArgValue& GetArgValue(const std::string& name) const;
+    bool Contains(const std::string& name) const {
+        return values_.find(name) != values_.end();
+    }
 
     template <typename T>
     T Get(const std::string& name) const {
-        return GetArgValue(name).GetValue<T>();
+        const auto it = values_.find(name);
+        if (it == values_.end()) {
+            throw std::runtime_error("Argument not found: " + name);
+        }
+        return it->second.GetValue<T>();
     }
+
+    void Parse(const int argc, const char* argv[]);
 
     void PrintHelp() const;
 private:
@@ -72,7 +129,9 @@ private:
 
     ArgValue ConvertValue(std::string value, const ArgType type);
 
-    bool ContainsOptionalArgument(const std::string& value) const;
+    bool ContainsOptionalArgument(const std::string& value) const {
+        return optional_definitions_.find(value) != optional_definitions_.end();
+    }
 };
 
 #endif /* ARGUMENT_PARSER_HPP_ */

@@ -30,7 +30,6 @@ public:
     ArgType type_;
     std::optional<ArgValue> default_value_;
     std::string help_;
-    // bool required_;
     bool is_flag_arg_;
 };
 

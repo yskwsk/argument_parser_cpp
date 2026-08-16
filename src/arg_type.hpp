@@ -4,6 +4,8 @@
 
 enum class ArgType {
     INT,
+    INT64,
+    FLOAT,
     DOUBLE,
     CHAR,
     STRING,

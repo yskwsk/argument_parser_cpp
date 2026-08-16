@@ -6,95 +6,16 @@
 #include <string>
 
 
-ArgumentParser::ArgumentParser() : program_name_("") {}
-
-
-ArgumentParser::ArgumentParser(const std::string& program_name)
-    : program_name_(program_name)
-{}
-
-
-void ArgumentParser::AddOptionalArgument(
-    const std::string& name,
-    const ArgType type,
-    const std::string& help
-) {
-    const std::string option_name = "--" + name;
-
-    optional_definitions_.emplace(
-        option_name,
-        ArgumentDefinition(
-            name,
-            type,
-            std::nullopt,
-            help,
-            false
-        )
-    );
-}
-
-
-void ArgumentParser::AddOptionalArgument(
-    const std::string& name,
-    const ArgType type,
-    const ArgValue& default_value,
-    const std::string& help
-) {
-    const std::string option_name = "--" + name;
-
-    optional_definitions_.emplace(
-        option_name,
-        ArgumentDefinition(
-            name,
-            type,
-            default_value,
-            help,
-            false
-        )
-    );
-}
-
-
-void ArgumentParser::AddFlag(
-    const std::string& name,
-    const std::string& help
-) {
-    const std::string option_name = "--" + name;
-
-    optional_definitions_.emplace(
-        option_name, 
-        ArgumentDefinition(
-            name,
-            ArgType::BOOL,
-            ArgValue(false),
-            help,
-            true
-        )
-    );
-}
-
-
-void ArgumentParser::AddPositionalArgument(
-    const std::string& name,
-    const ArgType type,
-    const std::string& help
-) {
-    positional_definitions_.push_back(
-        ArgumentDefinition(
-            name,
-            type,
-            std::nullopt,
-            help,
-            false
-        )
-    );
-}
-
-
 ArgValue ArgumentParser::ConvertValue(std::string value, const ArgType type) {
     switch (type) {
         case ArgType::INT:
             return ArgValue(std::stoi(value));
+
+        case ArgType::INT64:
+            return ArgValue(std::stoll(value));
+
+        case ArgType::FLOAT:
+            return ArgValue(std::stof(value));
 
         case ArgType::DOUBLE:
             return ArgValue(std::stod(value));
@@ -132,11 +53,6 @@ ArgValue ArgumentParser::ConvertValue(std::string value, const ArgType type) {
 }
 
 
-bool ArgumentParser::ContainsOptionalArgument(const std::string& value) const {
-    return optional_definitions_.find(value) != optional_definitions_.end();
-}
-
-
 void ArgumentParser::Parse(const int argc, const char* argv[]) {
     if (argc < 2) {
         throw std::runtime_error("Missing arguments");
@@ -151,7 +67,6 @@ void ArgumentParser::Parse(const int argc, const char* argv[]) {
 
     // オプション引数のデフォルト値を設定
     for (const auto& [option_name, definition] : optional_definitions_) {
-        std::cout << option_name << " " << definition.name_ << std::endl;
         if (definition.default_value_.has_value()) {
             values_.emplace(definition.name_, definition.default_value_.value());
         }
@@ -211,19 +126,6 @@ void ArgumentParser::Parse(const int argc, const char* argv[]) {
             throw std::runtime_error("Missing required argument: " + definition.name_);
         }
     }
-}
-
-
-bool ArgumentParser::Contains(const std::string& name) const {
-    if (values_.count(name) > 0) {
-        return true;
-    }
-    return false;
-}
-
-
-const ArgValue& ArgumentParser::GetArgValue(const std::string& name) const {
-    return values_.at(name);
 }
 
 
