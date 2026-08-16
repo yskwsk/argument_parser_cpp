@@ -19,8 +19,10 @@ void ArgumentParser::AddOptionalArgument(
     const ArgType type,
     const std::string& help
 ) {
+    const std::string option_name = "--" + name;
+
     optional_definitions_.emplace(
-        name,
+        option_name,
         ArgumentDefinition(
             name,
             type,
@@ -38,8 +40,10 @@ void ArgumentParser::AddOptionalArgument(
     const ArgValue& default_value,
     const std::string& help
 ) {
+    const std::string option_name = "--" + name;
+
     optional_definitions_.emplace(
-        name,
+        option_name,
         ArgumentDefinition(
             name,
             type,
@@ -55,8 +59,10 @@ void ArgumentParser::AddFlag(
     const std::string& name,
     const std::string& help
 ) {
+    const std::string option_name = "--" + name;
+
     optional_definitions_.emplace(
-        name, 
+        option_name, 
         ArgumentDefinition(
             name,
             ArgType::BOOL,
@@ -126,22 +132,28 @@ ArgValue ArgumentParser::ConvertValue(std::string value, const ArgType type) {
 }
 
 
+bool ArgumentParser::ContainsOptionalArgument(const std::string& value) const {
+    return optional_definitions_.find(value) != optional_definitions_.end();
+}
+
+
 void ArgumentParser::Parse(const int argc, const char* argv[]) {
     if (argc < 2) {
         throw std::runtime_error("Missing arguments");
     }
 
     // Helpの表示
-    const std::string name = argv[1];
-    if (name == "--help" || name == "-h") {
+    const std::string arg = argv[1];
+    if (arg == "--help" || arg == "-h") {
         PrintHelp();
         std::exit(0);
     } 
 
     // オプション引数のデフォルト値を設定
-    for (const auto& [name, definition] : optional_definitions_) {
+    for (const auto& [option_name, definition] : optional_definitions_) {
+        std::cout << option_name << " " << definition.name_ << std::endl;
         if (definition.default_value_.has_value()) {
-            values_.emplace(name, definition.default_value_.value());
+            values_.emplace(definition.name_, definition.default_value_.value());
         }
     }
 
@@ -163,18 +175,21 @@ void ArgumentParser::Parse(const int argc, const char* argv[]) {
 
             // フラグ引数の場合
             if (definition.is_flag_arg_) {
-                values_.insert_or_assign(argument, ArgValue(true));
+                values_.insert_or_assign(definition.name_, ArgValue(true));
                 continue;
             }
 
             // 値を指定する引数の場合
-            if (i + 1 > argc) {
+            if (i + 1 >= argc) {
                 throw std::runtime_error("Missing value for optinal argument: " + argument);
             }
 
             // iを一つ進めて値を取得
             const std::string value = argv[++i];
-            values_.insert_or_assign(argument, ConvertValue(value, definition.type_));
+            if (ContainsOptionalArgument(value)) {
+                throw std::runtime_error("Missing value for optional argument: " + argument);
+            }
+            values_.insert_or_assign(definition.name_, ConvertValue(value, definition.type_));
         }
         // 位置引数
         else {
@@ -193,7 +208,7 @@ void ArgumentParser::Parse(const int argc, const char* argv[]) {
     // 必須引数のチェック
     for (const auto& definition : positional_definitions_) {
         if (!Contains(definition.name_)) {
-            std::runtime_error("Missing required argument: " + definition.name_);
+            throw std::runtime_error("Missing required argument: " + definition.name_);
         }
     }
 }

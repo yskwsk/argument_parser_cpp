@@ -59,12 +59,20 @@ private:
     std::string program_name_;
     // 位置引数の定義を格納するvector変数
     std::vector<ArgumentDefinition> positional_definitions_;
-    // オプション引数の定義を格納するmap変数
+
+    /**
+     * オプション引数の定義を格納するmap変数
+     * key: option_name
+     *     ex. --example
+     * value: ArgumentDefinition
+     */
     std::map<std::string, ArgumentDefinition> optional_definitions_;
     // 実際の値を格納
     std::map<std::string, ArgValue> values_;
 
     ArgValue ConvertValue(std::string value, const ArgType type);
+
+    bool ContainsOptionalArgument(const std::string& value) const;
 };
 
 #endif /* ARGUMENT_PARSER_HPP_ */
