@@ -10,20 +10,36 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <vector>
 
 
 class ArgumentParser {
 public:
-    void AddArgument(
+    ArgumentParser();
+
+    ArgumentParser(const std::string& program_name);
+
+    void AddOptionalArgument(
         const std::string& name,
-        ArgType type,
+        const ArgType type,
+        const std::string& help = ""
+    );
+
+    void AddOptionalArgument(
+        const std::string& name,
+        const ArgType type,
+        const ArgValue& default_value,
         const std::string& help
     );
 
-    void AddArgument(
+    void AddFlag(
         const std::string& name,
-        ArgType type,
-        const ArgValue& default_value,
+        const std::string& help = ""
+    );
+
+    void AddPositionalArgument(
+        const std::string& name,
+        const ArgType type,
         const std::string& help
     );
 
@@ -40,10 +56,15 @@ public:
 
     void PrintHelp() const;
 private:
-    // 引数の定義を格納するmap変数
-    std::map<std::string, ArgumentDefinition> definitions_;
+    std::string program_name_;
+    // 位置引数の定義を格納するvector変数
+    std::vector<ArgumentDefinition> positional_definitions_;
+    // オプション引数の定義を格納するmap変数
+    std::map<std::string, ArgumentDefinition> optional_definitions_;
     // 実際の値を格納
     std::map<std::string, ArgValue> values_;
+
+    ArgValue ConvertValue(std::string value, const ArgType type);
 };
 
 #endif /* ARGUMENT_PARSER_HPP_ */

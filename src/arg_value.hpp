@@ -13,7 +13,8 @@ public:
         int,
         double,
         char,
-        std::string
+        std::string,
+        bool
     >;
 
     ArgValue() = default;
@@ -25,6 +26,8 @@ public:
     ArgValue(char value): value_(value) {}
 
     ArgValue(std::string value): value_(std::move(value)) {}
+
+    ArgValue(bool value): value_(value) {}
 
     template<typename T>
     const T& GetValue() const {

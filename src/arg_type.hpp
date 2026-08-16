@@ -6,7 +6,8 @@ enum class ArgType {
     INT,
     DOUBLE,
     CHAR,
-    STRING
+    STRING,
+    BOOL
 };
 
 

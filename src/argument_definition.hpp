@@ -10,10 +10,28 @@
 #include <string>
 
 
-struct ArgumentDefinition {
+class ArgumentDefinition {
+public:
+    ArgumentDefinition(
+        std::string name,
+        ArgType type,
+        std::optional<ArgValue>
+        default_value,
+        std::string help,
+        bool is_frag_arg
+    ) : name_(std::move(name)),
+        type_(type),
+        default_value_(default_value),
+        help_(std::move(help)),
+        is_flag_arg_(is_frag_arg)
+    {}
+
+    std::string name_;
     ArgType type_;
-    std::string help_;
     std::optional<ArgValue> default_value_;
+    std::string help_;
+    // bool required_;
+    bool is_flag_arg_;
 };
 
 #endif /* ARGUMENT_DEFINITION_HPP_ */
