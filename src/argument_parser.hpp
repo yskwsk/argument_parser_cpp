@@ -27,7 +27,7 @@ public:
         const std::string& help
     );
 
-    void Parse(int argc, const char* argv[]);
+    void Parse(const int argc, const char* argv[]);
 
     bool Contains(const std::string& name) const;
 

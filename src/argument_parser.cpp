@@ -38,7 +38,18 @@ void ArgumentParser::AddArgument(
 }
 
 
-void ArgumentParser::Parse(int argc, const char* argv[]) {
+void ArgumentParser::Parse(const int argc, const char* argv[]) {
+    if (argc < 2) {
+        throw std::runtime_error("Missing arguments");
+    }
+
+    // Helpの表示
+    const std::string name = argv[1];
+    if (name == "--help" || name == "-h") {
+        PrintHelp();
+        std::exit(0);
+    } 
+
     // デフォルト値を設定
     for (const auto& [name, definition] : definitions_) {
         if (definition.default_value_.has_value()) {
