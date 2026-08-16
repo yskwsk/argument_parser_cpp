@@ -81,11 +81,21 @@ void ArgumentParser::Parse(const int argc, const char* argv[]) {
 
         // オプション引数
         if (!argument.empty() && argument[0] == '-') {
-            const auto it = optional_definitions_.find(argument);
+            std::string name = argument;
+
+            // 短いオプション引数を長いオプション引数へ変換
+            if (argument.size() == 2) {
+                const auto it = short_option_names_.find(argument[1]);
+                if (it == short_option_names_.end()) {
+                    throw std::runtime_error("Unknown optional argument: " + argument);
+                }
+                name = it->second;
+            }
+
+            const auto it = optional_definitions_.find(name);
             if (it == optional_definitions_.end()) {
                 throw std::runtime_error("Unknown optional argument: " + argument);
             }
-
             const ArgumentDefinition& definition = it->second;
 
             // フラグ引数の場合
