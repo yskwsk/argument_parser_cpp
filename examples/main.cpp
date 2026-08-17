@@ -3,10 +3,8 @@
  * g++ -std=c++17 main.cpp -I../include -L../build -largument_parser -o parser_test
  * 
  */
-#include <iostream>
-
-
 #include <argument_parser/argument_parser.hpp>
+#include <iostream>
 
 
 int main(const int argc, const char* argv[]) {
