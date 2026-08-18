@@ -115,27 +115,35 @@ output.dat -> output
 ### オプション引数
 
 オプション引数は`AddOptionalArgument`関数を用いて定義する。
-`AddOptionalArgument`関数の引数には、引数の名前(name)、引数の型(type)、引数の説明(help)、
-引数のでデフォルト値(default_value)を渡すことができる。
+`AddOptionalArgument`関数の引数には、以下の引数を指定する。
+
+|引数|説明|
+|---|---|
+|name|引数の名前|
+|short_name|短縮した引数名|
+|type|引数の型|
+|default_value|引数のデフォルト値|
+|help|引数の説明|
+
+例えば、以下のようにオプション引数を定義する。
+
 ```cpp
-// 引数にname、type、helpのみ渡す場合
+// 引数にname、type、helpのみ指定する場合
 parser.AddOptionalArgument(
     "port",               // name
     ArgType::INT,         // type
     "Server port number"  // help
 );
 
-// default_valueも渡す場合
+// default_valueも指定する場合
 parser.AddOptionalArgument(
     "port",               // name
     ArgType::INT,         // type
     8080,                 // default_value
     "Server port number"  // help
 );
-```
 
-引数の名前には、短縮した引数の名前(short_name)も指定できる。
-```cpp
+// short_nameも指定する場合
 parser.AddOptionalArgument(
     "port",               // name
     'p',                  // short_name
@@ -144,15 +152,16 @@ parser.AddOptionalArgument(
     "Server port number"  // help
 );
 ```
+
 位置引数を定義した場合、実行時に以下のように`--`を付けてコマンドライン引数を与える。
 ```bash
 ./a.out --port 8888
 ```
-短縮した引数の名前を指定した場合は、`-`を付けて引数を与えうことができる
+短縮した引数の名前を指定した場合は、`-`を付けて引数を与えることができる。
 ```bash
 ./a.out -p 8888
 ```
-オプション引数は、必ずしも実行時に引数を渡す必要はない。以下のように`--port`を指定せずに実行した場合、引数の定義のときに指定したデフォルトの値が使用される。ただし、定義のときにデフォルトの値を指定していない場合、値が`null`になるので注意する。
+オプション引数は、必ずしも実行時に引数を渡す必要はない。以下のように`--port`を指定せずに実行した場合、引数の定義のときに指定したデフォルトの値が使用される。ただし、定義のときにデフォルトの値を指定していない場合、エラーになるので注意する。
 ```
 ./a.out --name user
 ```
@@ -160,7 +169,16 @@ parser.AddOptionalArgument(
 
 ### フラグ引数
 フラグ引数は、`AddFlag`関数を用いて定義する。
-`AddFlag`関数の引数には、引数の名前(name)、短縮した引数名(short_name)、引数の説明(help)を渡すことができる。
+`AddFlag`関数の引数には、以下を指定する。
+
+|引数|説明|
+|---|---|
+|name|引数名|
+|short_name|短縮した引数名|
+|help|引数の説明|
+
+例えば、以下のようにフラグ引数を定義する。
+
 ```cpp
 parser.AddFlag(
     "verbose",
@@ -174,9 +192,10 @@ parser.AddFlag(
     "Test verbose"
 );
 ```
+
 定義されたフラグ引数のデフォルト値は`false`である。
-プラグラムの実行時に、以下のように`--`あるいは`-`を付けてフラグ引数を指定した場合、フラグ引数の値は
-`true`となる。
+プラグラムの実行時に、以下のように`--`あるいは`-`を付けてフラグ引数を指定した場合、フラグ引数の値は`true`となる。
+
 ```bash
 ./a.out --verbose
 
